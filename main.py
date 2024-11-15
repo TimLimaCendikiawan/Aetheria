@@ -3,15 +3,17 @@ import tiktoken
 import streamlit as st
 import fitz  # PyMuPDF
 import os
+from dotenv import load_dotenv
 
-# DEFAULT VALUES
-DEFAULT_API_KEY = "d5f6fbe6a47ceda89032cbfe7f159b0014a3aec022ec0f5831bc2af7c5df9a80"
-DEFAULT_BASE_URL = "https://api.together.xyz/v1"
-DEFAULT_MODEL = "meta-llama/Llama-Vision-Free"
-DEFAULT_TEMPERATURE = 0.7
-DEFAULT_MAX_TOKENS = 512
-DEFAULT_TOKEN_BUDGET = 4096
-DEFAULT_TOP_P = 1.0
+load_dotenv()
+
+DEFAULT_API_KEY = os.getenv("API_KEY")
+DEFAULT_BASE_URL = os.getenv("BASE_URL")
+DEFAULT_MODEL = os.getenv("MODEL")
+DEFAULT_TEMPERATURE = float(os.getenv("TEMPERATURE", 0.7))
+DEFAULT_MAX_TOKENS = int(os.getenv("MAX_TOKENS", 512))
+DEFAULT_TOKEN_BUDGET = int(os.getenv("TOKEN_BUDGET", 4096))
+DEFAULT_TOP_P = float(os.getenv("TOP_P", 1.0))
 # DEFAULT_TOP_K = 50
 # DEFAULT_REP_PENALTY = 1.2
 
