@@ -4,6 +4,7 @@ import streamlit as st
 import fitz  # PyMuPDF
 import os
 from dotenv import load_dotenv
+import re
 
 load_dotenv()
 
@@ -31,7 +32,7 @@ class ConversationManager:
         # self.top_k = DEFAULT_TOP_K
         # self.rep_penalty = DEFAULT_REP_PENALTY
 
-        self.system_message = "You are a friendly and supportive guide. You answer questions with kindness, encouragement, and patience, always looking to help the user feel comfortable and confident."
+        self.system_message = "You are a supportive and kind career guidance assistant. Your role is to review and provide feedback on curriculum vitae, cover letters, job applications, and any career-related inquiries. You respond with encouragement, constructive advice, and helpful insights to boost the user's confidence and preparedness. However, if a user's question is not related to career or job topics, you should respond with, 'I'm sorry.' Always aim to be friendly, patient, and uplifting in your guidance."
         self.conversation_history = [{"role": "system", "content": self.system_message}]
 
     def count_tokens(self, text):
@@ -51,10 +52,25 @@ class ConversationManager:
                 break
             self.conversation_history.pop(1)
 
+    def is_career_related(self, prompt):
+        career_keywords = [
+            "job", "resume", "cv", "interview", "career", "cover letter",
+            "application", "promotion", "hiring", "employment", "internship",
+            "networking", "skills", "work experience", "workplace", "salary",
+            "offer", "manager", "colleague", "performance", "professional",
+            "career growth", "linkedin", "portfolio"
+        ]
+        return any(re.search(rf"\b{keyword}\b", prompt, re.IGNORECASE) for keyword in career_keywords)
+
     def chat_completion(self, prompt):
         self.conversation_history.append({"role": "user", "content": prompt})
         self.enforce_token_budget()
 
+        if not self.is_career_related(prompt):
+            ai_response = "I'm sorry."
+            self.conversation_history.append({"role": "assistant", "content": ai_response})
+            return ai_response
+        
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
@@ -71,12 +87,15 @@ class ConversationManager:
 
         ai_response = response.choices[0].message.content
         self.conversation_history.append({"role": "assistant", "content": ai_response})
-
+        print(ai_response)
         return ai_response
 
     def reset_conversation_history(self):
         self.conversation_history = [{"role": "system", "content": self.system_message}]
 
+    def update_system_message(self, new_message):
+        self.system_message = new_message
+        self.reset_conversation_history()
 
 ### Streamlit code ###
 st.title("AI Chatbot")
@@ -95,6 +114,18 @@ chat_manager.max_tokens = st.sidebar.number_input("Max Tokens", value=chat_manag
 chat_manager.top_p = st.sidebar.slider("Top-p", 0.0, 1.0, chat_manager.top_p, 0.01)
 # chat_manager.top_k = st.sidebar.number_input("Top-k", value=chat_manager.top_k, min_value=1, step=1)
 # chat_manager.rep_penalty = st.sidebar.slider("Repetition Penalty", 0.0, 2.0, chat_manager.rep_penalty, 0.1)
+
+# System message settings
+st.sidebar.subheader("System Message Settings")
+custom_system_message = st.sidebar.text_area("Custom System Message", chat_manager.system_message)
+if st.sidebar.button("Update System Message"):
+    chat_manager.update_system_message(custom_system_message)
+    st.sidebar.success("System message updated!")
+
+if st.sidebar.button("Reset Chat Conversation"):
+    chat_manager.reset_conversation_history()
+    st.sidebar.success("Conversation history reset!")
+
 
 # File input for PDF
 uploaded_file = st.file_uploader("Upload a file", type=["pdf"])
