@@ -53,14 +53,25 @@ class ConversationManager:
             self.conversation_history.pop(1)
 
     def is_career_related(self, prompt):
-        career_keywords = [
+        en_career_keywords = [
             "job", "resume", "cv", "interview", "career", "cover letter",
             "application", "promotion", "hiring", "employment", "internship",
             "networking", "skills", "work experience", "workplace", "salary",
             "offer", "manager", "colleague", "performance", "professional",
             "career growth", "linkedin", "portfolio"
         ]
-        return any(re.search(rf"\b{keyword}\b", prompt, re.IGNORECASE) for keyword in career_keywords)
+
+        in_career_keywords = [
+            "pekerjaan", "resume", "cv", "wawancara", "karier", "surat lamaran",
+            "lamaran", "promosi", "rekrutmen", "pekerjaan", "magang",
+            "koneksi", "keterampilan", "pengalaman kerja", "tempat kerja", "gaji",
+            "penawaran", "manajer", "rekan kerja", "kinerja", "profesional",
+            "pertumbuhan karier", "linkedin", "portofolio"
+        ]
+
+
+        return any(re.search(rf"\b{keyword}\b", prompt, re.IGNORECASE) for keyword in en_career_keywords+in_career_keywords)
+
 
     def chat_completion(self, prompt):
         self.conversation_history.append({"role": "user", "content": prompt})
