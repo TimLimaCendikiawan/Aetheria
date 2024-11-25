@@ -133,6 +133,10 @@ def get_instance_id():
 ### Streamlit code ###
 st.title("AI Chatbot")
 
+# Display EC2 Instance ID
+instance_id = get_instance_id()
+st.write(f"**EC2 Instance ID**: {instance_id}")
+
 # Initialize the ConversationManager object
 if 'chat_manager' not in st.session_state:
     st.session_state['chat_manager'] = ConversationManager()
