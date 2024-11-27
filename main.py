@@ -55,7 +55,7 @@ class ConversationManager:
 
     def is_career_related(self, prompt):
         en_career_keywords = [
-            "job", "resume", "cv", "interview", "career", "cover letter",
+            "job", "resume", "cv", "interview", "career", "cover letter","passionate",
             "application", "promotion", "hiring", "employment", "internship",
             "networking", "skills", "work experience", "workplace", "salary",
             "offer", "manager", "colleague", "performance", "professional",
@@ -79,7 +79,7 @@ class ConversationManager:
         self.enforce_token_budget()
 
         if not self.is_career_related(prompt):
-            ai_response = "I'm sorry."
+            ai_response = "I'm sorry. Keyword didn't match with this content."
             self.conversation_history.append({"role": "assistant", "content": ai_response})
             return ai_response
         
@@ -118,7 +118,6 @@ def get_instance_id():
             headers={"X-aws-ec2-metadata-token-ttl-seconds": "21600"},
             timeout=1
         ).text
-
         # Step 2: Use the token to get the instance ID
         instance_id = requests.get(
             "http://169.254.169.254/latest/meta-data/instance-id",
@@ -181,12 +180,13 @@ if uploaded_file is not None:
     # Optionally, use the file content as input for the chatbot
     if st.button("Send File Content to Chatbot"):
         response = chat_manager.chat_completion(file_content)
+        print("response file: ",response)
         st.write("**Chatbot Response:**")
         st.write(response)
 
 # Chat input from the user
 user_input = st.chat_input("Write a message")
-
+print("User input: ", user_input)
 # Call the chat manager to get a response from the AI
 if user_input:
     response = chat_manager.chat_completion(user_input)
