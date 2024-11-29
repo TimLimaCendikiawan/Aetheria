@@ -59,7 +59,7 @@ class ConversationManager:
             "application", "promotion", "hiring", "employment", "internship",
             "networking", "skills", "work experience", "workplace", "salary",
             "offer", "manager", "colleague", "performance", "professional",
-            "career growth", "linkedin", "portfolio"
+            "career growth", "linkedin", "portfolio", "ATS"
         ]
 
         in_career_keywords = [
@@ -79,7 +79,7 @@ class ConversationManager:
         self.enforce_token_budget()
 
         if not self.is_career_related(prompt):
-            ai_response = "I'm sorry. Keyword didn't match with this content."
+            ai_response = "I apologize, but I can only assist with career-related questions and topics. Please feel free to ask me about resumes, job applications, interviews, or any other career guidance you need."
             self.conversation_history.append({"role": "assistant", "content": ai_response})
             return ai_response
         
@@ -144,7 +144,9 @@ chat_manager = st.session_state['chat_manager']
 
 # Sidebar widgets for settings
 st.sidebar.header("Settings")
-chat_manager.model = st.sidebar.text_input("Model Name", chat_manager.model)
+
+model_options = ["meta-llama/Llama-Vision-Free", "M2-BERT-Retrieval-32k", "BAAI-Bge-Base-1p5"]
+chat_manager.model = st.sidebar.selectbox("Model Name", model_options, index=model_options.index(chat_manager.model) if chat_manager.model in model_options else 0)
 chat_manager.temperature = st.sidebar.slider("Temperature", 0.0, 1.0, chat_manager.temperature, 0.01)
 chat_manager.max_tokens = st.sidebar.number_input("Max Tokens", value=chat_manager.max_tokens, min_value=1, step=1)
 chat_manager.top_p = st.sidebar.slider("Top-p", 0.0, 1.0, chat_manager.top_p, 0.01)
@@ -152,15 +154,15 @@ chat_manager.top_p = st.sidebar.slider("Top-p", 0.0, 1.0, chat_manager.top_p, 0.
 # chat_manager.rep_penalty = st.sidebar.slider("Repetition Penalty", 0.0, 2.0, chat_manager.rep_penalty, 0.1)
 
 # System message settings
-st.sidebar.subheader("System Message Settings")
-custom_system_message = st.sidebar.text_area("Custom System Message", chat_manager.system_message)
-if st.sidebar.button("Update System Message"):
-    chat_manager.update_system_message(custom_system_message)
-    st.sidebar.success("System message updated!")
+# st.sidebar.subheader("System Message Settings")
+# custom_system_message = st.sidebar.text_area("Custom System Message", chat_manager.system_message)
+# if st.sidebar.button("Update System Message"):
+#     chat_manager.update_system_message(custom_system_message)
+#     st.sidebar.success("System message updated!")
 
-if st.sidebar.button("Reset Chat Conversation"):
-    chat_manager.reset_conversation_history()
-    st.sidebar.success("Conversation history reset!")
+# if st.sidebar.button("Reset Chat Conversation"):
+#     chat_manager.reset_conversation_history()
+#     st.sidebar.success("Conversation history reset!")
 
 
 # File input for PDF
@@ -178,11 +180,16 @@ if uploaded_file is not None:
     st.write(file_content)
 
     # Optionally, use the file content as input for the chatbot
+    question_about_file = st.text_input("What questions do you have about this file?")
     if st.button("Send File Content to Chatbot"):
-        response = chat_manager.chat_completion(file_content)
-        print("response file: ",response)
-        st.write("**Chatbot Response:**")
-        st.write(response)
+        if question_about_file:
+            prompt = f"Here is the file content:\n{file_content}\n\nQuestion: {question_about_file}"
+            response = chat_manager.chat_completion(prompt)
+            print("response file: ", response)
+            st.write("**Chatbot Response:**")
+            st.write(response)
+        else:
+            st.warning("Please enter a question about the file first.")
 
 # Chat input from the user
 user_input = st.chat_input("Write a message")
