@@ -19,6 +19,16 @@ DEFAULT_TOP_P = float(os.getenv("TOP_P", 1.0))
 # DEFAULT_TOP_K = 50
 # DEFAULT_REP_PENALTY = 1.2
 
+st.set_page_config(page_title="Aetheria", layout="wide", initial_sidebar_state='collapsed')
+
+# with open("styles.css") as f:
+#     css = f.read()
+# st.markdown(f"""
+#     <style>
+#         {css}
+#     </style>
+# """, unsafe_allow_html=True)
+
 class ConversationManager:
     def __init__(self, api_key=None, base_url=None, model=None, temperature=None, max_tokens=None, token_budget=None):
         self.api_key = api_key or DEFAULT_API_KEY
@@ -134,7 +144,7 @@ st.title("AI Chatbot")
 
 # Display EC2 Instance ID
 instance_id = get_instance_id()
-st.write(f"**EC2 Instance ID**: {instance_id}")
+# st.write(f"**EC2 Instance ID**: {instance_id}")
 
 # Initialize the ConversationManager object
 if 'chat_manager' not in st.session_state:
@@ -144,7 +154,6 @@ chat_manager = st.session_state['chat_manager']
 
 # Sidebar widgets for settings
 st.sidebar.header("Settings")
-
 model_options = ["meta-llama/Llama-Vision-Free", "M2-BERT-Retrieval-32k", "BAAI-Bge-Base-1p5"]
 chat_manager.model = st.sidebar.selectbox("Model Name", model_options, index=model_options.index(chat_manager.model) if chat_manager.model in model_options else 0)
 chat_manager.temperature = st.sidebar.slider("Temperature", 0.0, 1.0, chat_manager.temperature, 0.01)
