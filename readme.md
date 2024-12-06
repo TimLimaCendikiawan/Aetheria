@@ -14,10 +14,11 @@ Atheria Project
 - Step to run project 
     1. Clone the Repository
     Copy and paste repo link, cloning the repo to local device:
-
     git clone https://github.com/TimLimaCendikiawan/Aetheria.git
     cd Aetheria
+
     2. Install libraries
     - pip install -r requirements.txt
+    
     3. Run the Atheria Application
     streamlit run main.py
